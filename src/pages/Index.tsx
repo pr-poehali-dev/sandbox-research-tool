@@ -151,28 +151,29 @@ const Index = () => {
             </div>
             
             <div className="space-y-3">
-            {ENDPOINTS.map((endpoint) => (
-              <Button
-                key={endpoint.path}
-                onClick={() => fetchEndpoint(endpoint.path)}
-                disabled={loading}
-                className={`w-full justify-start text-left h-auto py-4 px-5 ${
-                  activeEndpoint === endpoint.path 
-                    ? 'bg-[#9b87f5] hover:bg-[#8b77e5]' 
-                    : 'bg-[#2A2F3C] hover:bg-[#3A3F4C]'
-                } transition-all`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`${endpoint.color} p-2 rounded-lg`}>
-                    <Icon name={endpoint.icon} size={20} />
+              {ENDPOINTS.map((endpoint) => (
+                <Button
+                  key={endpoint.path}
+                  onClick={() => fetchEndpoint(endpoint.path)}
+                  disabled={loading}
+                  className={`w-full justify-start text-left h-auto py-4 px-5 ${
+                    activeEndpoint === endpoint.path 
+                      ? 'bg-[#9b87f5] hover:bg-[#8b77e5]' 
+                      : 'bg-[#2A2F3C] hover:bg-[#3A3F4C]'
+                  } transition-all`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`${endpoint.color} p-2 rounded-lg`}>
+                      <Icon name={endpoint.icon} size={20} />
+                    </div>
+                    <div>
+                      <div className="font-semibold">{endpoint.label}</div>
+                      <div className="text-xs text-gray-400">?path={endpoint.path}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="font-semibold">{endpoint.label}</div>
-                    <div className="text-xs text-gray-400">?path={endpoint.path}</div>
-                  </div>
-                </div>
-              </Button>
-            ))}
+                </Button>
+              ))}
+            </div>
           </div>
 
           <div className="lg:col-span-2">
