@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "Test help endpoint",
+      "method": "GET",
+      "path": "/?path=help",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "available_commands": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test ping endpoint",
+      "method": "GET",
+      "path": "/?path=ping",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "status": "alive"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test env endpoint",
+      "method": "GET",
+      "path": "/?path=env",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "environment_variables": "object"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
